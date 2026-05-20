@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>NU1902;NU1903</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="PdfSharpCore" Version="1.3.67" />
+    <PackageReference Include="PDFtoImage" Version="5.1.0" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+    <!-- Syncfusion: agregar cuando los paquetes sean compatibles con net10.0 -->
+    <!-- PackageReference Include="Syncfusion.DocIORenderer.Net.Core" Version="26.2.14" / -->
+    <!-- PackageReference Include="Syncfusion.PresentationRenderer.Net.Core" Version="26.2.14" / -->
+    <!-- PackageReference Include="Syncfusion.ExcelToPdfConverter.Net.Core" Version="26.2.14" / -->
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PdfToolkit.Core\PdfToolkit.Core.csproj" />
+  </ItemGroup>
+</Project>

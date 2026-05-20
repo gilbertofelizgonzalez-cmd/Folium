@@ -1,0 +1,209 @@
+<UserControl x:Class="PdfToolkit.UI.Views.SplitView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
+             xmlns:vm="clr-namespace:PdfToolkit.UI.ViewModels">
+    <UserControl.Resources>
+        <Style x:Key="InfoBarStyle" TargetType="Border">
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="#1A1976D2"/>
+            <Setter Property="BorderBrush" Value="#331976D2"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding InfoBarSeverity}" Value="Success">
+                    <Setter Property="Background" Value="#1A2E7D32"/>
+                    <Setter Property="BorderBrush" Value="#332E7D32"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding InfoBarSeverity}" Value="Warning">
+                    <Setter Property="Background" Value="#1AF57C00"/>
+                    <Setter Property="BorderBrush" Value="#33F57C00"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding InfoBarSeverity}" Value="Error">
+                    <Setter Property="Background" Value="#1AC62828"/>
+                    <Setter Property="BorderBrush" Value="#33C62828"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Opacity" Value="0.7"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+
+        <Style x:Key="PathBoxStyle" TargetType="TextBox">
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Background" Value="#11FFFFFF"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="24" AllowDrop="True" Drop="OnFileDrop" DragOver="OnDragOver">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <TextBlock Grid.Row="0" Text="Dividir PDF" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,4"/>
+            <TextBlock Grid.Row="1" Text="{Binding StatusMessage}" Opacity="0.7" Margin="0,0,0,16"/>
+
+            <!-- InfoBar -->
+            <Border Grid.Row="2"
+                    Style="{StaticResource InfoBarStyle}"
+                    Visibility="{Binding IsInfoBarOpen, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{Binding InfoBarTitle}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding InfoBarMessage}" TextWrapping="Wrap" Opacity="0.85" Margin="0,4,0,0"/>
+                    </StackPanel>
+                    <Button Grid.Column="1" Content="✕"
+                            Command="{Binding CloseInfoBarCommand}"
+                            Background="Transparent" BorderThickness="0"
+                            Padding="8" Margin="8,0,0,0"/>
+                </Grid>
+            </Border>
+
+            <!-- PDF fuente -->
+            <StackPanel Grid.Row="3" Margin="0,0,0,16">
+                <TextBlock Text="PDF a dividir" Style="{StaticResource FieldLabelStyle}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
+                             Text="{Binding SourceFile, Mode=OneWay, TargetNullValue='(ninguno seleccionado)'}"
+                             Style="{StaticResource PathBoxStyle}"/>
+                    <Button Grid.Column="1"
+                            Content="Seleccionar PDF"
+                            Command="{Binding SelectSourceCommand}"
+                            Padding="16,8" Margin="8,0,0,0"/>
+                </Grid>
+                <!-- Conteo de páginas del PDF seleccionado -->
+                <TextBlock Margin="0,6,0,0" FontSize="12" Opacity="0.6"
+                           Text="{Binding TotalPageCount, StringFormat='📄  Este documento tiene {0} páginas'}"
+                           Visibility="{Binding HasPageCount, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            </StackPanel>
+
+            <!-- Carpeta de salida -->
+            <StackPanel Grid.Row="4" Margin="0,0,0,16">
+                <TextBlock Text="Carpeta de salida" Style="{StaticResource FieldLabelStyle}"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Column="0"
+                             Text="{Binding OutputDirectory, Mode=OneWay, TargetNullValue='(ninguna seleccionada)'}"
+                             Style="{StaticResource PathBoxStyle}"/>
+                    <Button Grid.Column="1"
+                            Content="Elegir carpeta"
+                            Command="{Binding SelectOutputCommand}"
+                            Padding="16,8" Margin="8,0,0,0"/>
+                </Grid>
+            </StackPanel>
+
+            <!-- Selección de páginas -->
+            <Border Grid.Row="5"
+                    Background="{DynamicResource SystemControlBackgroundChromeLowBrush}"
+                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="16,14"
+                    Margin="0,0,0,24">
+                <StackPanel>
+                    <TextBlock Text="Páginas a extraer"
+                               FontSize="13" FontWeight="SemiBold"
+                               Margin="0,0,0,12"/>
+
+                    <!-- Opción: todas las páginas -->
+                    <RadioButton IsChecked="{Binding SplitAllPages}"
+                                 FontSize="14"
+                                 Margin="0,0,0,10">
+                        <TextBlock Text="{Binding PageCountLabel}"/>
+                    </RadioButton>
+
+                    <!-- Opción: páginas específicas -->
+                    <RadioButton IsChecked="{Binding SplitSpecificPages}"
+                                 FontSize="14"
+                                 Margin="0,0,0,10">
+                        <TextBlock Text="Páginas específicas"/>
+                    </RadioButton>
+
+                    <!-- Campo de rango (habilitado solo con "específicas") -->
+                    <StackPanel Margin="28,0,0,0"
+                                IsEnabled="{Binding IsCustomRangeEnabled}">
+                        <TextBox Text="{Binding PageRangeText, UpdateSourceTrigger=PropertyChanged}"
+                                 ui:ControlHelper.PlaceholderText="Ej: 1-3, 5, 8-10"
+                                 Padding="12,8"
+                                 Background="{DynamicResource SystemControlBackgroundChromeLowBrush}"
+                                 Margin="0,0,0,6"/>
+                        <TextBlock Text="{Binding RangeValidationMessage}"
+                                   FontSize="12" Opacity="0.8"
+                                   TextWrapping="Wrap"
+                                   Margin="0,0,0,4"/>
+                        <TextBlock FontSize="11" Opacity="0.45" TextWrapping="Wrap">
+                            Formato: números y rangos separados por coma — ej.
+                            <Run Text="1, 3-5, 7, 10-15" FontFamily="Consolas" FontSize="11"/>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Progreso + Botones -->
+            <Grid Grid.Row="6">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Grid.Row="0" Margin="0,0,0,16"
+                            Visibility="{Binding IsProcessing, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <Grid Margin="0,0,0,4">
+                        <TextBlock Text="{Binding CurrentOutputFile, StringFormat='Generando: {0}'}" Opacity="0.7"/>
+                        <TextBlock Text="{Binding ProgressPercentage, StringFormat='{}{0:F0}%'}"
+                                   HorizontalAlignment="Right" Opacity="0.7"/>
+                    </Grid>
+                    <ProgressBar Height="6" Value="{Binding ProgressPercentage}" Maximum="100"/>
+                </StackPanel>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Text="Cada página seleccionada se guarda como un PDF separado."
+                               VerticalAlignment="Center"
+                               Opacity="0.45" FontSize="12"/>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="Cancelar"
+                                Command="{Binding CancelSplitCommand}"
+                                Padding="20,10" Margin="0,0,8,0"
+                                Visibility="{Binding IsProcessing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        <Button Content="Dividir PDF"
+                                Command="{Binding SplitCommand}"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Padding="20,10"/>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PdfToolkit.Core/PdfToolkit.Core.csproj" />
+    <Project Path="src/PdfToolkit.Services/PdfToolkit.Services.csproj" />
+    <Project Path="src/PdfToolkit.UI/PdfToolkit.UI.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PdfToolkit.Core.Tests/PdfToolkit.Core.Tests.csproj" />
+    <Project Path="tests/PdfToolkit.Services.Tests/PdfToolkit.Services.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,101 @@
+<UserControl x:Class="PdfToolkit.UI.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.modernwpf.com/2019">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24" MaxWidth="600">
+
+            <!-- Header -->
+            <TextBlock Text="Ajustes" FontSize="28" FontWeight="SemiBold" Margin="0,0,0,4"/>
+            <TextBlock Text="Personaliza la apariencia y comportamiento de la app."
+                       Opacity="0.7" Margin="0,0,0,32"/>
+
+            <!-- ── Apariencia ─────────────────────────────────── -->
+            <TextBlock Text="APARIENCIA"
+                       FontSize="10" FontWeight="SemiBold"
+                       Opacity="0.5" Margin="0,0,0,12"/>
+
+            <Border Background="{DynamicResource SystemControlBackgroundChromeLowBrush}" CornerRadius="6" Padding="20" Margin="0,0,0,24">
+                <StackPanel>
+                    <TextBlock Text="Tema" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,16"/>
+
+                    <RadioButton Content="Seguir el tema del sistema"
+                                 IsChecked="{Binding ThemeSystem}"
+                                 GroupName="Theme"
+                                 Margin="0,0,0,10"
+                                 FontSize="14"/>
+
+                    <RadioButton Content="Claro"
+                                 IsChecked="{Binding ThemeLight}"
+                                 GroupName="Theme"
+                                 Margin="0,0,0,10"
+                                 FontSize="14"/>
+
+                    <RadioButton Content="Oscuro"
+                                 IsChecked="{Binding ThemeDark}"
+                                 GroupName="Theme"
+                                 FontSize="14"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ── Carpeta de salida ─────────────────────────── -->
+            <TextBlock Text="CARPETA DE SALIDA"
+                       FontSize="10" FontWeight="SemiBold"
+                       Opacity="0.5" Margin="0,0,0,12"/>
+
+            <Border Background="{DynamicResource SystemControlBackgroundChromeLowBrush}" CornerRadius="6" Padding="20">
+                <StackPanel>
+                    <TextBlock Text="Destino de los archivos generados"
+                               FontSize="15" FontWeight="SemiBold" Margin="0,0,0,4"/>
+                    <TextBlock Text="Aplica a Unir PDFs, Dividir PDF y Convertir a PDF."
+                               Opacity="0.55" FontSize="12" Margin="0,0,0,16"/>
+
+                    <RadioButton Content="Preguntar siempre (mostrar diálogo)"
+                                 IsChecked="{Binding UseFixedPath, Converter={StaticResource InverseBoolConverter}}"
+                                 GroupName="Output"
+                                 Margin="0,0,0,10"
+                                 FontSize="14"/>
+
+                    <RadioButton Content="Usar carpeta fija"
+                                 IsChecked="{Binding UseFixedPath}"
+                                 GroupName="Output"
+                                 Margin="0,0,0,16"
+                                 FontSize="14"/>
+
+                    <!-- Selector de carpeta (visible solo si UseFixedPath) -->
+                    <StackPanel Visibility="{Binding IsFixedPathEnabled, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="Carpeta de destino" Opacity="0.6" FontSize="12" Margin="0,0,0,6"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding OutputPath, UpdateSourceTrigger=PropertyChanged}"
+                                     FontSize="13"
+                                     Padding="10,8"
+                                     IsReadOnly="True"/>
+                            <Button Grid.Column="1"
+                                    Content="Examinar..."
+                                    Command="{Binding BrowseOutputPathCommand}"
+                                    Padding="14,8" Margin="8,0,0,0"/>
+                            <Button Grid.Column="2"
+                                    Content="Documentos"
+                                    Command="{Binding ResetOutputPathCommand}"
+                                    Padding="14,8" Margin="8,0,0,0"
+                                    ToolTip="Restablecer a la carpeta Documentos del usuario"/>
+                        </Grid>
+                        <TextBlock Opacity="0.45" FontSize="11" Margin="0,8,0,0"
+                                   TextWrapping="Wrap">
+                            <Run Text="Los archivos se guardan automaticamente con un nombre generado."/>
+                            <Run Text="Si la carpeta no existe, se pedira la ubicacion manualmente."/>
+                        </TextBlock>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
